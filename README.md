@@ -1,0 +1,2 @@
+# gitFlow
+Branching Standards
