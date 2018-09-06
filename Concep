@@ -1,0 +1,113 @@
+
+https://nvie.com/posts/a-successful-git-branching-model/
+
+Main Branches:-
+ - Master
+ - Develop
+ 
+ We consider origin/master to be the main branch where the source code of HEAD always reflects a production-ready state
+ We consider origin/develop to be the main branch where the source code of HEAD always reflects a state with the latest delivered 
+ development changes for the next release.
+ When the source code in the develop branch reaches a stable point and is ready to be released, all of the changes should be merged 
+ back into master
+
+Supporting Branches:-
+The different types of branches we may use are:
+Feature branches
+Release branches
+Hotfix branches
+
+Feature branchs
+------------------
+May branch off from:
+develop
+Must merge back into:
+develop
+Branch naming convention:
+anything except master, develop, release-*, or hotfix-*
+
+$ git checkout -b myfeature develop
+Switched to a new branch "myfeature"
+
+$ git checkout develop
+Switched to branch 'develop'
+$ git merge --no-ff myfeature
+Updating ea1b82a..05e9557
+(Summary of changes)
+$ git branch -d myfeature
+Deleted branch myfeature (was 05e9557).
+$ git push origin develop
+
+Release branches
+-----------------
+May branch off from:
+develop
+Must merge back into:
+develop and master
+Branch naming convention:
+release-*
+
+$ git checkout -b release-1.2 develop
+Switched to a new branch "release-1.2"
+$ ./bump-version.sh 1.2
+Files modified successfully, version bumped to 1.2.
+$ git commit -a -m "Bumped version number to 1.2"
+[release-1.2 74d9424] Bumped version number to 1.2
+1 files changed, 1 insertions(+), 1 deletions(-)
+
+
+$ git checkout master
+Switched to branch 'master'
+$ git merge --no-ff release-1.2
+Merge made by recursive.
+(Summary of changes)
+$ git tag -a 1.2
+
+$ git checkout develop
+Switched to branch 'develop'
+$ git merge --no-ff release-1.2
+Merge made by recursive.
+(Summary of changes)
+
+HotFix branches
+-------------------
+May branch off from:
+master
+Must merge back into:
+develop and master
+Branch naming convention:
+hotfix-*
+
+
+$ git checkout -b hotfix-1.2.1 master
+Switched to a new branch "hotfix-1.2.1"
+$ ./bump-version.sh 1.2.1
+Files modified successfully, version bumped to 1.2.1.
+$ git commit -a -m "Bumped version number to 1.2.1"
+[hotfix-1.2.1 41e61bb] Bumped version number to 1.2.1
+1 files changed, 1 insertions(+), 1 deletions(-)
+
+$ git commit -m "Fixed severe production problem"
+[hotfix-1.2.1 abbe5d6] Fixed severe production problem
+5 files changed, 32 insertions(+), 17 deletions(-)
+
+$ git checkout master
+Switched to branch 'master'
+$ git merge --no-ff hotfix-1.2.1
+Merge made by recursive.
+(Summary of changes)
+$ git tag -a 1.2.1
+
+$ git checkout develop
+Switched to branch 'develop'
+$ git merge --no-ff hotfix-1.2.1
+Merge made by recursive.
+(Summary of changes)
+
+The one exception to the rule here is that, when a release branch currently exists, the hotfix changes need to be merged into that 
+release branch, instead of develop. Back-merging the bugfix into the release branch will eventually result in the bugfix being merged 
+into develop too, when the release branch is finished.
+
+$ git branch -d hotfix-1.2.1
+Deleted branch hotfix-1.2.1 (was abbe5d6).
+
